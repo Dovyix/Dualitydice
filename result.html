@@ -1,4 +1,4 @@
 <!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;overflow:hidden;background:transparent}body{padding:8px;box-sizing:border-box}#r .rc{box-sizing:border-box;width:100%}</style></head><body><div id="r"></div>
 <script src="dice.js"></script><script>try{play(document.getElementById("r"),JSON.parse(new URLSearchParams(location.search).get("d")))}catch(e){}</script>
-<script type="module">import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.0.0";window.closeResult=()=>OBR.onReady(()=>OBR.popover.close("dh-result"));
+<script type="module">import OBR from "./obr-sdk.js?v=1";window.closeResult=()=>OBR.onReady(()=>OBR.popover.close("dh-result"));
 OBR.onReady(()=>{const fit=()=>OBR.popover.setHeight("dh-result",Math.ceil(document.getElementById("r").getBoundingClientRect().height)+16);new ResizeObserver(fit).observe(document.getElementById("r"));fit()});</script></body></html>
