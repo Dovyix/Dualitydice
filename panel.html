@@ -15,12 +15,12 @@ body[data-m=u] .d-only{display:none!important}body[data-m=d] .u-only{display:non
 #go{display:block;width:min(100%,400px);margin:16px auto 0;padding:10px;border:0;border-radius:8px;background:#a283e0;color:#fff;font:22px var(--ff,sans-serif);cursor:pointer}
 #favs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}.chip{display:flex;border:1px solid #55609e;border-radius:14px;overflow:hidden}.chip button{background:transparent;color:#fff;border:0;padding:3px 9px;cursor:pointer;font:14px var(--ff,sans-serif)}
 .lh{display:flex;justify-content:space-between;margin:16px 4px 6px;color:#9aa5d8;font-size:15px}.lh button{background:none;border:0;color:#9aa5d8;cursor:pointer;font:inherit;text-decoration:underline}
-#log{max-height:150px;overflow:auto;display:flex;flex-direction:column;gap:6px}.empty{color:#7f8ac0;text-align:center;font-size:14px;line-height:1.4}
+#log{max-height:calc(100vh - 130px);overflow:auto;display:flex;flex-direction:column;gap:6px}.empty{color:#7f8ac0;text-align:center;font-size:14px;line-height:1.4}
 .li{display:flex;gap:10px;align-items:center;background:#2c3460;border-left:4px solid var(--c);border-radius:6px;padding:6px 10px}.li strong{font-size:24px;min-width:34px;text-align:center;font-weight:400}.li .who{opacity:.8}.li .lab{color:var(--c)}.li .bd{font-size:14px;text-align:left}
-#toast{position:fixed;right:12px;bottom:12px;z-index:5}#note{font-size:12px;color:#9aa5d8;margin-top:8px;text-align:center}
+body[data-m=l] #roller{display:none}body:not([data-m=l]) #logview{display:none}#ltabs{display:flex;gap:6px;align-items:center;margin:0 4px 10px}#ltabs button{background:transparent;border:2px solid #55609e;color:#c9d0f5;padding:2px 14px;border-radius:14px;font:16px var(--ff,sans-serif);cursor:pointer}#ltabs button.on{background:#7a64e8;border-color:#7a64e8;color:#fff}#ltabs #clr{margin-left:auto;border:0;background:none;color:#9aa5d8;text-decoration:underline;font-size:15px;padding:0}#toast{position:fixed;right:12px;bottom:12px;z-index:5}#note{font-size:12px;color:#9aa5d8;margin-top:8px;text-align:center}
 </style></head><body data-m="u">
-<div id="tabs"><button data-m="u">Duality</button><button data-m="d">Dice</button></div>
-<div id="dice"></div><div id="pbtns" class="d-only"></div>
+<div id="tabs"><button data-m="u">Duality</button><button data-m="d">Dice</button><button data-m="l">Log</button></div>
+<div id="roller"><div id="dice"></div><div id="pbtns" class="d-only"></div>
 <div class="mrow"><span class="ml">Modifier</span><button class="cir" id="m1"></button><span id="mod">0</span><button class="cir" id="m2"></button><span class="gap"></span>
 <button class="sq g u-only" id="addA" title="Advantage d6: click to add, right-click to remove"></button><button class="sq r u-only" id="addD" title="Disadvantage d6: click to add, right-click to remove"></button>
 <button class="sq o d-only" id="pw" title="Powerful: roll twice, show the best result"></button>
@@ -29,14 +29,15 @@ body[data-m=u] .d-only{display:none!important}body[data-m=d] .u-only{display:non
 <button class="sq" id="again" title="Restore previous roll" disabled></button>
 <button class="sq" id="fav" title="Save favorite"></button></div>
 <button id="go">Roll Duality Dice</button><div id="favs"></div><div id="note"></div>
-<div class="lh"><span>Roll log</span><button id="clr">Clear</button></div><div id="log"></div><div id="toast"></div>
+</div>
+<div id="logview"><div id="ltabs"><button data-l="u">Duality</button><button data-l="d">Dice</button><button id="clr">Clear</button></div><div id="log"></div></div><div id="toast"></div>
 <script src="dice.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const PL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',MI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M5 12h14"/></svg>';
 $("m1").innerHTML=MI;$("m2").innerHTML=PL;
 let mode="u",hs=12,fs=12,ex=[],mod=0,pool=[],pmod=0,power=false,reload=false,secret=false,OBR=null,lastU=null,lastD=null,favs=[],to,ls="",lpAt=0,lp;
-$("addA").innerHTML=ico("advantage");$("addD").innerHTML=ico("disadvantage");$("pw").innerHTML=ico("powerful");$("rl").innerHTML=ico("reload");$("again").innerHTML=ico("previous");$("fav").innerHTML=ico("favorite");
+$("addA").innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M8 2h4v6h6v4h-6v6H8v-6H2V8h6z"/></svg>';$("addD").innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M2 8h16v4H2z"/></svg>';$("pw").innerHTML=ico("powerful");$("rl").innerHTML=ico("reload");$("again").innerHTML=ico("previous");$("fav").innerHTML=ico("favorite");
 const setSec=()=>{$("sec").innerHTML=ico(secret?"private":"public");$("sec").title=secret?"Secret roll: only you see it (click for public)":"Public roll: everyone sees it (click for secret)"};setSec();
 try{favs=JSON.parse(localStorage.getItem("dh-fav")||"[]")}catch(e){}
 const saveFavs=()=>{try{localStorage.setItem("dh-fav",JSON.stringify(favs))}catch(e){}};
@@ -47,6 +48,7 @@ const lbl=c=>c.m=="d"?poolLbl(c.pool)+sg(c.mod)+(c.power?" ⚡":"")+(c.reload?" 
 const opts=(k,s,main)=>SIZES.map(x=>`<option value="${x}" ${x==s?"selected":""}>${main?"":(k=="a"?"adv ":"dis ")}d${x}</option>`).join("")+(main?"":'<option value="x">remove</option>');
 const col=(k,s,id,w)=>`<div class="col" style="--col:${KIND[k][1]}">${pdie(k,s,w)}<select data-i="${id}">${opts(k,s,k=="h"||k=="f")}</select></div>`;
 function draw(){document.body.dataset.m=mode;document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.m==mode));
+ if(mode=="l"){drawLog();return}
  if(mode=="u"){$("dice").innerHTML=`<div class="top">${col("h",hs,"h",150)}${col("f",fs,"f",150)}</div>`+(ex.length?`<div class="top ex">${ex.map((e,i)=>col(e.t,e.s,i,92)).join("")}</div>`:"")}
  else{const N=pool.length,w=N<=2?150:N<=4?104:N<=8?76:58;
   $("dice").innerHTML=`<div class="top pool">${N?pool.map(s=>pdie("w",s,w)).join(""):'<div class="empty">Click a die below to add it to the pool<br>(right-click to remove)</div>'}</div>`;
@@ -54,7 +56,11 @@ function draw(){document.body.dataset.m=mode;document.querySelectorAll("#tabs bu
   $("pw").classList.toggle("on",power);$("rl").classList.toggle("on",reload)}
  $("mod").textContent=fmt(mode=="u"?mod:pmod);$("go").textContent=mode=="u"?"Roll Duality Dice":"Roll the Dice";$("again").disabled=!(mode=="u"?lastU:lastD)}
 const drawFavs=()=>{$("favs").innerHTML=favs.map((c,i)=>`<span class="chip"><button data-load="${i}" title="Load">${lbl(c)}</button><button data-del="${i}" title="Delete">×</button></span>`).join("")};
-const drawLog=()=>{const L=logGet();ls=JSON.stringify(L);$("log").innerHTML=L.length?L.map(logItem).join(""):'<div class="empty">No rolls yet</div>'};
+let lmode="u";const isD=x=>x&&x.mode=="dice";
+const drawLog=()=>{const A=logGet();ls=JSON.stringify(A);const L=A.filter(x=>isD(x)==(lmode=="d"));
+ document.querySelectorAll("#ltabs button[data-l]").forEach(b=>b.classList.toggle("on",b.dataset.l==lmode));
+ $("log").innerHTML=L.length?L.map(logItem).join(""):`<div class="empty">No ${lmode=="d"?"Dice":"Duality"} rolls yet</div>`};
+$("ltabs").onclick=e=>{const b=e.target.closest("button[data-l]");if(b){lmode=b.dataset.l;drawLog()}};
 $("tabs").onclick=e=>{const b=e.target.closest("button");if(b){mode=b.dataset.m;$("note").textContent="";draw()}};
 $("dice").onchange=e=>{const t=e.target,v=t.value,i=t.dataset.i;if(i=="h")hs=+v;else if(i=="f")fs=+v;else if(v=="x")ex.splice(+i,1);else ex[i].s=+v;draw()};
 const rmDie=s=>{const i=pool.lastIndexOf(s);if(i>=0){pool.splice(i,1);draw()}};
@@ -76,7 +82,7 @@ function bindAdd(id,t){const b=$(id);
  b.onpointerup=b.onpointercancel=b.onpointerleave=()=>clearTimeout(lp)}
 bindAdd("addA","a");bindAdd("addD","d");
 $("pw").onclick=()=>{power=!power;draw()};$("rl").onclick=()=>{reload=!reload;draw()};
-$("clr").onclick=()=>{logSet([]);drawLog()};
+$("clr").onclick=()=>{logSet(logGet().filter(x=>isD(x)!=(lmode=="d")));drawLog()};
 window.closeResult=()=>{const t=$("toast");(t._to||[]).forEach(clearTimeout);clearInterval(t._t);t.innerHTML="";clearTimeout(to)};
 async function send(p){await obrReady;p.name=OBR?await OBR.player.getName():"You";p.secret=secret;
  if(OBR)OBR.broadcast.sendMessage("daggerheart/roll",p,{destination:secret?"LOCAL":"ALL"});
