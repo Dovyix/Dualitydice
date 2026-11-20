@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "manifest_version": 1,
   "description": "Duality dice (Hope & Fear) with advantage, disadvantage, modifiers and secret rolls.",
-  "action": { "title": "Duality Dice", "icon": "/icon.svg", "popover": "/panel.html", "width": 440, "height": 740 },
-  "background_url": "/background.html"
+  "action": { "title": "Duality Dice", "icon": "./icon.svg", "popover": "./panel.html", "width": 440, "height": 740 },
+  "background_url": "./background.html"
 }
