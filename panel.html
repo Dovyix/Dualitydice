@@ -80,7 +80,7 @@ bindAdd("addA","a");bindAdd("addD","d");
 $("pw").onclick=()=>{power=!power;draw()};$("rl").onclick=()=>{reload=!reload;draw()};
 $("clr").onclick=()=>{logSet([]);drawLog()};
 window.closeResult=()=>{const t=$("toast");(t._to||[]).forEach(clearTimeout);clearInterval(t._t);t.innerHTML="";clearTimeout(to)};
-async function send(p){await obrReady;p.name=OBR?await OBR.player.getName():"You";p.secret=secret;
+async function send(p){await obrReady;if(!OBR&&inOBR){$("note").textContent=WARN;return}p.name=OBR?await OBR.player.getName():"You";p.secret=secret;
  if(OBR)OBR.broadcast.sendMessage("daggerheart/roll",p,{destination:secret?"LOCAL":"ALL"});
  else{play($("toast"),p);clearTimeout(to);to=setTimeout(window.closeResult,16000);setTimeout(()=>{logAdd(p);drawLog()},revealAt(dcount(p)));
   $("note").textContent="Demo mode: inside Owlbear the result pops up bottom-right for everyone (secret rolls only for you)."}}
@@ -91,5 +91,10 @@ $("go").onclick=()=>{if(mode=="u"){const c=cfg();lastU=c;roll(c);hs=fs=12;ex=[];
 $("again").onclick=()=>{if(mode=="u"){if(lastU){hs=lastU.hs;fs=lastU.fs;mod=lastU.mod;ex=lastU.ex.map(e=>({...e}));draw()}}else if(lastD){pool=[...lastD.pool];pmod=lastD.mod;power=!!lastD.power;reload=!!lastD.reload;draw()}};
 draw();drawFavs();drawLog();setInterval(()=>{if(JSON.stringify(logGet())!=ls)drawLog()},700);
 
-var obrReady=(async()=>{try{const m=await import("https://esm.sh/@owlbear-rodeo/sdk@3.0.0");if(!m.default.isAvailable)throw new Error("OBR SDK not available (not inside Owlbear iframe)");await new Promise(res=>m.default.onReady(res));OBR=m.default;const fit=()=>OBR.action.setHeight(Math.ceil(document.body.getBoundingClientRect().height));new ResizeObserver(fit).observe(document.body);fit()}catch(e){console.error("[Duality Dice] OBR init failed:",e)}})();
+var inOBR=window.self!==window.top,WARN="\u26a0 \u0e40\u0e0a\u0e37\u0e48\u0e2d\u0e21\u0e15\u0e48\u0e2d Owlbear \u0e44\u0e21\u0e48\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08 \u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e35\u0e40\u0e1f\u0e23\u0e0a\u0e2b\u0e19\u0e49\u0e32 (F5)";
+var obrReady=(async()=>{for(let n=0;n<3&&!OBR;n++){try{const m=await import("./obr-sdk.js?v=1");if(!m.default.isAvailable)throw new Error("OBR SDK not available (not inside Owlbear iframe)");
+ await Promise.race([new Promise(r=>m.default.onReady(r)),new Promise((_,x)=>setTimeout(()=>x(new Error("onReady timeout")),8000))]);
+ OBR=m.default;const fit=()=>OBR.action.setHeight(Math.ceil(document.body.getBoundingClientRect().height));new ResizeObserver(fit).observe(document.body);fit()}
+ catch(e){console.error("[Duality Dice] OBR init failed (try "+(n+1)+"):",e);if(!inOBR)break;await new Promise(r=>setTimeout(r,1500))}}
+ if(!OBR&&inOBR)$("note").textContent=WARN})();
 </script></body></html>
