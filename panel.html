@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Daggerheart Dice</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;padding:14px 10px;background:#20284b;color:#fff;font:16px var(--ff,sans-serif)}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;padding:14px 10px 16px;background:#20284b;color:#fff;font:16px var(--ff,sans-serif)}
 body[data-m=u] .d-only{display:none!important}body[data-m=d] .u-only{display:none!important}
 #tabs{display:flex;gap:6px;justify-content:center;margin-bottom:12px}#tabs button{background:transparent;border:2px solid #55609e;color:#c9d0f5;padding:3px 18px;border-radius:16px;font:18px var(--ff,sans-serif);cursor:pointer}#tabs button.on{background:#a283e0;border-color:#a283e0;color:#fff}
 .top{display:flex;justify-content:center;gap:20px}.top.ex{margin-top:12px;flex-wrap:wrap;gap:10px}.col{display:flex;flex-direction:column;align-items:center;gap:8px;width:180px}.top.ex .col{width:112px}
@@ -15,9 +15,9 @@ body[data-m=u] .d-only{display:none!important}body[data-m=d] .u-only{display:non
 #go{display:block;width:min(100%,400px);margin:16px auto 0;padding:10px;border:0;border-radius:8px;background:#a283e0;color:#fff;font:22px var(--ff,sans-serif);cursor:pointer}
 #favs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}.chip{display:flex;border:1px solid #55609e;border-radius:14px;overflow:hidden}.chip button{background:transparent;color:#fff;border:0;padding:3px 9px;cursor:pointer;font:14px var(--ff,sans-serif)}
 .lh{display:flex;justify-content:space-between;margin:16px 4px 6px;color:#9aa5d8;font-size:15px}.lh button{background:none;border:0;color:#9aa5d8;cursor:pointer;font:inherit;text-decoration:underline}
-#log{max-height:calc(100vh - 130px);overflow:auto;display:flex;flex-direction:column;gap:6px}.empty{color:#7f8ac0;text-align:center;font-size:14px;line-height:1.4}
+#favs:empty,#note:empty{display:none}#log{max-height:440px;overflow:auto;display:flex;flex-direction:column;gap:6px}.empty{color:#7f8ac0;text-align:center;font-size:14px;line-height:1.4}
 .li{display:flex;gap:10px;align-items:center;background:#2c3460;border-left:4px solid var(--c);border-radius:6px;padding:6px 10px}.li strong{font-size:24px;min-width:34px;text-align:center;font-weight:400}.li .who{opacity:.8}.li .lab{color:var(--c)}.li .bd{font-size:14px;text-align:left}
-body[data-m=l] #roller{display:none}body:not([data-m=l]) #logview{display:none}#ltabs{display:flex;gap:6px;align-items:center;margin:0 4px 10px}#ltabs button{background:transparent;border:2px solid #55609e;color:#c9d0f5;padding:2px 14px;border-radius:14px;font:16px var(--ff,sans-serif);cursor:pointer}#ltabs button.on{background:#7a64e8;border-color:#7a64e8;color:#fff}#ltabs #clr{margin-left:auto;border:0;background:none;color:#9aa5d8;text-decoration:underline;font-size:15px;padding:0}#toast{position:fixed;right:12px;bottom:12px;z-index:5}#note{font-size:12px;color:#9aa5d8;margin-top:8px;text-align:center}
+body[data-m=l] #roller{display:none}body:not([data-m=l]) #logview{display:none}#logview{min-height:300px}#ltabs{display:flex;gap:6px;align-items:center;margin:0 4px 10px}#ltabs button{background:transparent;border:2px solid #55609e;color:#c9d0f5;padding:2px 14px;border-radius:14px;font:16px var(--ff,sans-serif);cursor:pointer}#ltabs button.on{background:#7a64e8;border-color:#7a64e8;color:#fff}#ltabs #clr{margin-left:auto;border:0;background:none;color:#9aa5d8;text-decoration:underline;font-size:15px;padding:0}#toast{position:fixed;right:12px;bottom:12px;z-index:5}#note{font-size:12px;color:#9aa5d8;margin-top:8px;text-align:center}
 </style></head><body data-m="u">
 <div id="tabs"><button data-m="u">Duality</button><button data-m="d">Dice</button><button data-m="l">Log</button></div>
 <div id="roller"><div id="dice"></div><div id="pbtns" class="d-only"></div>
@@ -95,5 +95,5 @@ $("go").onclick=()=>{if(mode=="u"){const c=cfg();lastU=c;roll(c);hs=fs=12;ex=[];
 $("again").onclick=()=>{if(mode=="u"){if(lastU){hs=lastU.hs;fs=lastU.fs;mod=lastU.mod;ex=lastU.ex.map(e=>({...e}));draw()}}else if(lastD){pool=[...lastD.pool];pmod=lastD.mod;power=!!lastD.power;reload=!!lastD.reload;draw()}};
 draw();drawFavs();drawLog();setInterval(()=>{if(JSON.stringify(logGet())!=ls)drawLog()},700);
 
-var obrReady=(async()=>{try{const m=await import("https://esm.sh/@owlbear-rodeo/sdk@3.0.0");if(!m.default.isAvailable)throw new Error("OBR SDK not available (not inside Owlbear iframe)");await new Promise(res=>m.default.onReady(res));OBR=m.default}catch(e){console.error("[Duality Dice] OBR init failed:",e)}})();
+var obrReady=(async()=>{try{const m=await import("https://esm.sh/@owlbear-rodeo/sdk@3.0.0");if(!m.default.isAvailable)throw new Error("OBR SDK not available (not inside Owlbear iframe)");await new Promise(res=>m.default.onReady(res));OBR=m.default;const fit=()=>OBR.action.setHeight(Math.ceil(document.body.getBoundingClientRect().height));new ResizeObserver(fit).observe(document.body);fit()}catch(e){console.error("[Duality Dice] OBR init failed:",e)}})();
 </script></body></html>
