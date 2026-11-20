@@ -6,9 +6,9 @@
   "action": {
     "title": "Duality Dice",
     "icon": "https://dovyix.github.io/Dualitydice/icon.svg",
-    "popover": "https://dovyix.github.io/Dualitydice/panel.html",
+    "popover": "https://dovyix.github.io/Dualitydice/panel.html?v=2",
     "width": 440,
     "height": 520
   },
-  "background_url": "https://dovyix.github.io/Dualitydice/background.html"
+  "background_url": "https://dovyix.github.io/Dualitydice/background.html?v=2"
 }
