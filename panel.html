@@ -78,7 +78,7 @@ bindAdd("addA","a");bindAdd("addD","d");
 $("pw").onclick=()=>{power=!power;draw()};$("rl").onclick=()=>{reload=!reload;draw()};
 $("clr").onclick=()=>{logSet([]);drawLog()};
 window.closeResult=()=>{const t=$("toast");(t._to||[]).forEach(clearTimeout);clearInterval(t._t);t.innerHTML="";clearTimeout(to)};
-async function send(p){p.name=OBR?await OBR.player.getName():"You";p.secret=secret;
+async function send(p){await obrReady;p.name=OBR?await OBR.player.getName():"You";p.secret=secret;
  if(OBR)OBR.broadcast.sendMessage("daggerheart/roll",p,{destination:secret?"LOCAL":"ALL"});
  else{play($("toast"),p);clearTimeout(to);to=setTimeout(window.closeResult,16000);setTimeout(()=>{logAdd(p);drawLog()},revealAt(dcount(p)));
   $("note").textContent="Demo mode: inside Owlbear the result pops up bottom-right for everyone (secret rolls only for you)."}}
@@ -88,5 +88,6 @@ $("go").onclick=()=>{if(mode=="u"){const c=cfg();lastU=c;roll(c);hs=fs=12;ex=[];
  else{if(!pool.length){$("note").textContent="Add dice to the pool first.";return}const c=cfg();lastD=c;rollD(c);pool=[];pmod=0;power=false;reload=false}draw()};
 $("again").onclick=()=>{if(mode=="u"){if(lastU){hs=lastU.hs;fs=lastU.fs;mod=lastU.mod;ex=lastU.ex.map(e=>({...e}));draw()}}else if(lastD){pool=[...lastD.pool];pmod=lastD.mod;power=!!lastD.power;reload=!!lastD.reload;draw()}};
 draw();drawFavs();drawLog();setInterval(()=>{if(JSON.stringify(logGet())!=ls)drawLog()},700);
-(async()=>{try{const m=await import("https://esm.sh/@owlbear-rodeo/sdk@3.0.0");if(!m.default.isAvailable)throw 0;await new Promise(res=>m.default.onReady(res));OBR=m.default}catch(e){}})();
+
+var obrReady=(async()=>{try{const m=await import("https://esm.sh/@owlbear-rodeo/sdk@3.0.0");if(!m.default.isAvailable)throw new Error("OBR SDK not available (not inside Owlbear iframe)");await new Promise(res=>m.default.onReady(res));OBR=m.default}catch(e){console.error("[Duality Dice] OBR init failed:",e)}})();
 </script></body></html>
