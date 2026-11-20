@@ -1,8 +1,8 @@
 <!doctype html><html><body><script src="dice.js"></script><script type="module">
-import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.0.0";
+import OBR from "./obr-sdk.js?v=1";
 let timer;
 OBR.onReady(() => {
-  OBR.broadcast.onMessage("daggerheart/roll", async (ev) => {
+  OBR.broadcast.onMessage("daggerheart/roll", async (ev) => { try {
     const w = await OBR.viewport.getWidth(), h = await OBR.viewport.getHeight();
     await OBR.popover.open({ id: "dh-result", url: "https://dovyix.github.io/Dualitydice/result.html?d=" + encodeURIComponent(JSON.stringify(ev.data)), width: 340, height: (ev.data.mode == "dice" ? ((ev.data.rolls || []).length > 1 ? 420 : 320) : 300),
       anchorReference: "POSITION", anchorPosition: { left: w - 16, top: h - 16 },
@@ -10,6 +10,6 @@ OBR.onReady(() => {
       hidePaper: true, disableClickAway: true });
     setTimeout(() => logAdd(ev.data), revealAt(dcount(ev.data)));
     clearTimeout(timer); timer = setTimeout(() => OBR.popover.close("dh-result"), 12000);
-  });
+  } catch (e) { console.error("[Duality Dice] roll display failed:", e); try { logAdd(ev.data); } catch (_) {} } });
 });
 </script></body></html>
