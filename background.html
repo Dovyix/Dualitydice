@@ -4,7 +4,7 @@ let timer;
 OBR.onReady(() => {
   OBR.broadcast.onMessage("daggerheart/roll", async (ev) => {
     const w = await OBR.viewport.getWidth(), h = await OBR.viewport.getHeight();
-    await OBR.popover.open({ id: "dh-result", url: "/result.html?d=" + encodeURIComponent(JSON.stringify(ev.data)), width: 340, height: (ev.data.mode == "dice" ? ((ev.data.rolls || []).length > 1 ? 420 : 320) : 300),
+    await OBR.popover.open({ id: "dh-result", url: "./result.html?d=" + encodeURIComponent(JSON.stringify(ev.data)), width: 340, height: (ev.data.mode == "dice" ? ((ev.data.rolls || []).length > 1 ? 420 : 320) : 300),
       anchorReference: "POSITION", anchorPosition: { left: w - 16, top: h - 16 },
       anchorOrigin: { horizontal: "RIGHT", vertical: "BOTTOM" }, transformOrigin: { horizontal: "RIGHT", vertical: "BOTTOM" },
       hidePaper: true, disableClickAway: true });
